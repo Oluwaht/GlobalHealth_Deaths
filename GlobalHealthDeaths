@@ -1,0 +1,184 @@
+-- Preview entire dataset
+
+SELECT *  
+FROM WorldData.Deaths
+
+
+-- Question 1; What are the top five causes of Death worldwide, and how have their rankings changed over the past decade? (Total Deaths)
+-- Find the Sum of all deaths by year 
+
+SELECT
+    Year,
+    SUM(Meningitis) AS Meningitis_Deaths,
+    SUM(Alzheimers_Dementias) AS Alzheimer_Deaths,
+    SUM(Parkinsons_Disease) AS Parkinson_Deaths,
+    SUM(Nutritional_Deficiencies) AS Nutritional_Deaths,
+    SUM(Malaria) AS Malaria_Deaths,
+    SUM(Drowning) AS Drowning_Deaths,
+    SUM(Interpersonal_Violence) AS Interpersonal_Violence_Deaths,
+    SUM(Maternal_Disorders) AS Maternal_Disorders_Deaths,
+    SUM(HIV_AIDS) AS HIV_AIDS_Deaths,
+    SUM(Drug_Disorders) AS Drug_Disorders_Deaths,
+    SUM(Tuberculosis) AS Tuberculosis_Deaths,
+    SUM(Cardiovascular_Diseases) AS Cardiovascular_Diseases_Deaths,
+    SUM(Lower_Respiratory_Infections) AS Lower_Respiratory_Infections_Deaths,
+    SUM(Neonatal_Disorders) AS Neonatal_Disorders_Deaths,
+    SUM(Alcohol_Disorders) AS Alcohol_Disorders_Deaths,
+    SUM(Self_harm) AS Self_harm_Deaths,
+    SUM(Forces_of_Nature) AS Forces_of_Nature_Deaths,
+    SUM(Diarrheal_Diseases) AS Diarrheal_Diseases_Deaths,
+    SUM(Environmental_Heat_and_Cold_Exposure) AS Environmental_Heat_and_Cold_Exposure_Deaths,
+    SUM(Neoplasms) AS Neoplasms_Deaths,
+    SUM(Conflict_Terrorism) AS Conflict_Terrorism_Deaths,
+    SUM(Diabetes_Mellitus) AS Diabetes_Mellitus_Deaths,
+    SUM(Chronic_Kidney_Disease) AS Chronic_Kidney_Disease_Deaths,
+    SUM(Poisonings) AS Poisonings_Deaths,
+    SUM(Protein_Energy_Malnutrition) AS Protein_Energy_Malnutrition_Deaths,
+    SUM(Road_Injuries) AS Road_Injuries_Deaths,
+    SUM(Chronic_Respiratory_Diseases) AS Chronic_Respiratory_Diseases_Deaths,
+    SUM(Cirrhosis_and_Chronic_Liver_Diseases) AS Cirrhosis_and_Chronic_Liver_Diseases_Deaths,
+    SUM(Digestive_Diseases) AS Digestive_Diseases_Deaths,
+    SUM(Fire_Heat_and_Hot_Substances) AS Fire_Heat_and_Hot_Substances_Deaths,
+    SUM(Acute_Hepatitis) AS Acute_Hepatitis_Deaths,
+    SUM(Meningitis + Alzheimers_Dementias + Parkinsons_Disease + Nutritional_Deficiencies +
+    Malaria + Drowning + Interpersonal_Violence + Maternal_Disorders + HIV_AIDS +
+    Drug_Disorders + Tuberculosis + Cardiovascular_Diseases + Lower_Respiratory_Infections +
+    Neonatal_Disorders + Alcohol_Disorders + Self_harm + Forces_of_Nature + Diarrheal_Diseases +
+    Environmental_Heat_and_Cold_Exposure + Neoplasms + Conflict_Terrorism + Diabetes_Mellitus +
+    Chronic_Kidney_Disease + Poisonings + Protein_Energy_Malnutrition + Road_Injuries +
+    Chronic_Respiratory_Diseases + Cirrhosis_and_Chronic_Liver_Diseases + Digestive_Diseases +
+    Fire_Heat_and_Hot_Substances + Acute_Hepatitis) AS Total_Deaths
+FROM WorldData.Deaths
+GROUP BY
+    Year
+ORDER BY
+    Year DESC;
+
+-- total deaths for each cause world wide, all years
+
+SELECT 
+    SUM(Meningitis) AS MEN,  
+    SUM(Alzheimers_Dementias) AS Alz,
+    SUM(Parkinsons_Disease) AS Park,
+    SUM(Nutritional_Deficiencies) AS Nutrition,
+    SUM(Malaria) AS MAL,
+    SUM(Drowning) AS Drowning, 
+    SUM(Interpersonal_Violence) AS IV,
+    SUM(Maternal_Disorders) AS MD,
+    SUM(HIV_AIDS) AS HIV,
+    SUM(Drug_Disorders) AS DrugD,
+    SUM(Tuberculosis) AS TUB,
+    SUM(Cardiovascular_Diseases) AS CD,
+    SUM(Lower_Respiratory_Infections) AS LRI,
+    SUM(Neonatal_Disorders) AS ND,
+    SUM(Alcohol_Disorders) AS AD,
+    SUM(Self_harm) AS SH,
+    SUM(Forces_of_Nature) AS FON, 
+    SUM(Diarrheal_Diseases) AS DD,
+    SUM(Environmental_Heat_and_Cold_Exposure) AS ECH,
+    SUM(Neoplasms) AS NEO,
+    SUM(Conflict_Terrorism) AS CT,
+    SUM(Diabetes_Mellitus) AS DM,
+    SUM(Chronic_Kidney_Disease) AS CKD,
+    SUM(Poisonings) AS POISON,
+    SUM(Protein_Energy_Malnutrition) AS PEM,
+    SUM(Road_Injuries) AS RI,
+    SUM(Chronic_Respiratory_Diseases) AS CRD,
+    SUM(Cirrhosis_and_Chronic_Liver_Diseases) AS CCLD,
+    SUM(Digestive_Diseases) AS DIGEST,
+    SUM(Fire_Heat_and_Hot_Substances) AS FAH, 
+    SUM(Acute_Hepatitis) AS AH
+  FROM WorldData.Deaths
+
+
+
+-- Question 2: Which country has shown the most significant improvement in reducing the burden of cardiovascular diseases over the last five years? (Cardiovascular)
+-- find the country with the highest reduction in cardiovascular disease 
+
+SELECT
+    Country,
+    SUM(Cardiovascular_Diseases_2019) AS Cardiovascular_Diseases_Deaths_2019,
+    SUM(Cardiovascular_Diseases_2015) AS Cardiovascular_Diseases_Deaths_2015,
+    (SUM(Cardiovascular_Diseases_2015) - SUM(Cardiovascular_Diseases_2019)) AS Deaths_Reduction
+FROM
+    (SELECT
+        Country,
+        Year,
+        CASE WHEN Year = 2019 THEN Cardiovascular_Diseases ELSE 0 END AS Cardiovascular_Diseases_2019,
+        CASE WHEN Year = 2015 THEN Cardiovascular_Diseases ELSE 0 END AS Cardiovascular_Diseases_2015
+    FROM WorldData.Deaths
+    WHERE Year BETWEEN 2015 AND 2019
+    ) AS T
+GROUP BY
+    Country
+HAVING
+    SUM(Cardiovascular_Diseases_2019) IS NOT NULL
+    AND SUM(Cardiovascular_Diseases_2015) IS NOT NULL
+ORDER BY
+    Deaths_Reduction DESC
+LIMIT 1;
+
+-- Question 3; How does the burden of malaria compare between countries, and what factors may contribute to the disparities? (Malaria)
+-- Rank all the deaths by malaria, and group by country. 
+SELECT
+    Country, 
+    ROUND(AVG(Malaria)) AS Average_Malaria_Deaths,
+FROM WorldData.Deaths
+GROUP BY Country
+ORDER BY Average_Malaria_Deaths DESC;
+
+-- Question 4: Is there a relationship between the incidence of tuberculosis and the prevalence of drug use disorders in certain regions? (Tuberculosis)
+-- Find the average tuberculosis death and average drug disorder death by country
+SELECT
+    Country,
+    ROUND(AVG(Tuberculosis)) AS Average_Tuberculosis_Deaths,
+    ROUND(AVG(Drug_Disorders)) AS Average_Drug_Disorders_Deaths
+FROM WorldData.Deaths
+GROUP BY Country
+HAVING AVG(Tuberculosis) IS NOT NULL AND AVG(Drug_Disorders) IS NOT NULL;
+
+-- Question 5: How have the burden of mental health-related diseases, such as Alzheimer's and self-harm, changed over time in different countries? (Alzheimers/Self-Harm)
+-- find all the alzheimer deaths and self harm deaths per year by country.
+SELECT
+    Country,
+    Year,
+    SUM(Alzheimers_Dementias) AS Alzheimer_Deaths,
+    SUM(Self_harm) AS Self_Harm_Deaths
+FROM WorldData.Deaths
+WHERE Year BETWEEN 1990 AND 2019
+GROUP BY Country, Year
+HAVING SUM(Alzheimers_Dementias) IS NOT NULL AND SUM(Self_harm) IS NOT NULL
+ORDER BY Country, Year;
+
+-- Question 6: What is the overall trend in Deaths caused by chronic respiratory diseases, and is there any association with exposure to environmental heat and cold? (Respiratory/HeatColdExposure)
+-- Find total deaths for respiratory and heat/cold exposure by year. 
+SELECT
+    Year,
+    SUM(Chronic_Respiratory_Diseases) AS Chronic_Respiratory_Deaths,
+    SUM(Environmental_Heat_and_Cold_Exposure) AS Heat_Cold_Exposure_Deaths
+FROM WorldData.Deaths
+GROUP BY Year
+HAVING SUM(Chronic_Respiratory_Diseases) IS NOT NULL AND SUM(Environmental_Heat_and_Cold_Exposure) IS NOT NULL
+ORDER BY Year;
+
+-- Question 7: Is there a correlation between alcohol use disorder deaths and liver disease deaths (cirrhosis) in specific countries or territories? (Alcohol/Cirrhosis)
+-- Find the average deaths for Alcohol and Cirrhosis
+
+SELECT
+    Country,
+    ROUND(AVG(Alcohol_Disorders)) AS Average_Alcohol_Disorder_Deaths,
+    ROUND(AVG(Cirrhosis_and_Chronic_Liver_Diseases)) AS Average_Cirrhosis_Deaths
+FROM WorldData.Deaths
+GROUP BY Country
+HAVING AVG(Alcohol_Disorders) IS NOT NULL AND AVG(Cirrhosis_and_Chronic_Liver_Diseases) IS NOT NULL
+ORDER BY Average_Alcohol_Disorder_Deaths DESC;
+
+-- Question 8: Can you identify any countries where the burden of protein-energy malnutrition has been increasing in recent years? (Protein Malnutrition)
+-- find the protein energy malnutrition per country by year 
+SELECT
+    Country,
+    Year,
+    Protein_Energy_Malnutrition AS PEM_Deaths
+FROM WorldData.Deaths
+WHERE Protein_Energy_Malnutrition IS NOT NULL
+ORDER BY Country, Year;
